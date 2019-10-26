@@ -233,32 +233,33 @@ stout2 = StandOut(stream='error', share=True, error_marker='**ERROR** ')
 
 """
 
-__all__ = ['StandOut']
+__all__ = ["StandOut"]
 
 import sys
 
+
 class StandOut:
-    
+
     stdout = None
     stderr = None
-    
+
     def __init__(self, indict=None, **keywargs):
         """StandOut - the Flexible Output Object (FOO !)"""
         if indict is None:
             indict = {}
         #
         defaults = {
-            'priority': 5,
-            'verbosity': 5,
-            'filename': None,
-            'file_verbosity': 5,
-            'file_mode': 'w',
-            'print_fun': None,
-            'printfun_verbosity': 5 ,
-            'stream': 'output',
-            'share': False,
-            'error_marker': '[err] '
-            }
+            "priority": 5,
+            "verbosity": 5,
+            "filename": None,
+            "file_verbosity": 5,
+            "file_mode": "w",
+            "print_fun": None,
+            "printfun_verbosity": 5,
+            "stream": "output",
+            "share": False,
+            "error_marker": "[err] ",
+        }
         #
         if not indict:
             indict = keywargs
@@ -266,112 +267,136 @@ class StandOut:
             if not indict.has_key(value):
                 indict[value] = defaults[value]
         #
-        if indict['stream'].lower() == 'error':
+        if indict["stream"].lower() == "error":
             self.output = sys.stderr
             sys.stderr = StandOut.stderr = self
-            self.stream = indict['stream'].lower()
-        else:       
+            self.stream = indict["stream"].lower()
+        else:
             self.output = sys.stdout
             sys.stdout = StandOut.stdout = self
-            self.stream = indict['stream'].lower()
+            self.stream = indict["stream"].lower()
 
-        self.filename = indict['filename']
+        self.filename = indict["filename"]
         if self.filename:
-            self.filehandle = file(self.filename, indict['file_mode'])
+            self.filehandle = file(self.filename, indict["file_mode"])
         else:
             self.filehandle = None
 
-        self.file_mode = indict['file_mode']
-        self.share = indict['share']
-        self.err_marker = indict['error_marker']
+        self.file_mode = indict["file_mode"]
+        self.share = indict["share"]
+        self.err_marker = indict["error_marker"]
         self.done_linefeed = True
 
-        self.priority = indict['priority']              # current message priority
-        self.file_verbosity = indict['file_verbosity']            # file output threshold
-        self.verbosity = indict['verbosity']                    # stdout threshhold
-        self.printfun_verbosity = indict['printfun_verbosity']    # print_fun threshold
+        self.priority = indict["priority"]  # current message priority
+        self.file_verbosity = indict["file_verbosity"]  # file output threshold
+        self.verbosity = indict["verbosity"]  # stdout threshhold
+        self.printfun_verbosity = indict["printfun_verbosity"]  # print_fun threshold
 
-        if indict['print_fun']:     # set up the print_fun if we have been given one
+        if indict["print_fun"]:  # set up the print_fun if we have been given one
             self.print_fun = True
-            self.thefun = [indict['print_fun']]
+            self.thefun = [indict["print_fun"]]
         else:
             self.print_fun = False
 
         self.markers = {}
-        for num in range(10):                               # define the markers
-            thismarker = '&priority-' + str(num) + ';'
+        for num in range(10):  # define the markers
+            thismarker = "&priority-" + str(num) + ";"
             self.markers[thismarker] = num
-        self.escapemarker = '&priority-e;'
+        self.escapemarker = "&priority-e;"
 
         self.skip = 0
         self._lastpriority = 0
-            
-#########################################################################
-        # public methods - available as methods of any instance of StandOut you create
-        
-    def write(self, line, priority = 0):
+
+    #########################################################################
+    # public methods - available as methods of any instance of StandOut you create
+
+    def write(self, line, priority=0):
         """Print to any of the output methods we are using.
         Capture lines which set priority."""
 
-        if self.skip:           # if the last line was a priority marker then self.skip is set and we should miss the '\n' or ' ' that is sent next
+        if (
+            self.skip
+        ):  # if the last line was a priority marker then self.skip is set and we should miss the '\n' or ' ' that is sent next
             self.skip = 0
             return
-        
-        if not priority:                
-            if self._lastpriority:          # if the last line had a priority marker at the start of it, then the '\n' or ' ' that is sent next should have the same priority
+
+        if not priority:
+            if (
+                self._lastpriority
+            ):  # if the last line had a priority marker at the start of it, then the '\n' or ' ' that is sent next should have the same priority
                 priority = self._lastpriority
                 self._lastpriority = 0
             else:
                 priority = self.priority
 
-        if line in self.markers:                # if the line is a priority marker
-            self.skip = 1                       # either a '\n' or a ' ' will now be sent  to sys.stdout.write() by print
+        if line in self.markers:  # if the line is a priority marker
+            self.skip = (
+                1
+            )  # either a '\n' or a ' ' will now be sent  to sys.stdout.write() by print
             self.priority = self.markers[line]
             return
-        
-        if line[:12] in self.markers:           # if the line starts with a priority marker
-            priority = int(line[10])            # the priority of this line is at position 10
-            self._lastpriority = priority       # set this value so that the '\n' or ' ' that follows also has the same priority
-            line = line[12:]                    # chop off the marker
-        elif line[:12] == self.escapemarker:       
-            line = line[12:]                    # this just removes our 'escape marker'
-            
-        if not priority:                    # if priority is set to 0 then we mute all output
+
+        if line[:12] in self.markers:  # if the line starts with a priority marker
+            priority = int(line[10])  # the priority of this line is at position 10
+            self._lastpriority = (
+                priority
+            )  # set this value so that the '\n' or ' ' that follows also has the same priority
+            line = line[12:]  # chop off the marker
+        elif line[:12] == self.escapemarker:
+            line = line[12:]  # this just removes our 'escape marker'
+
+        if not priority:  # if priority is set to 0 then we mute all output
             return
 
-        if self.filename and not self.filehandle:                           # if a filename has been added since we opened
+        if (
+            self.filename and not self.filehandle
+        ):  # if a filename has been added since we opened
             self.filehandle = file(self.filename, self.file_mode)
-        if self.filehandle and self.file_verbosity and priority >= self.file_verbosity:      # if we have a file and file_verbosity is high enough to output
+        if (
+            self.filehandle and self.file_verbosity and priority >= self.file_verbosity
+        ):  # if we have a file and file_verbosity is high enough to output
             self.filehandle.write(line)
-            
-        if self.verbosity and priority >= self.verbosity:              # if verbosity is set high enough we print
-            if self.share and self.stream == 'error' and hasattr(StandOut.stdout, 'filename'):      # if we are the error stream *and* share is on *and* stdout has a filename attribute..
+
+        if (
+            self.verbosity and priority >= self.verbosity
+        ):  # if verbosity is set high enough we print
+            if (
+                self.share
+                and self.stream == "error"
+                and hasattr(StandOut.stdout, "filename")
+            ):  # if we are the error stream *and* share is on *and* stdout has a filename attribute..
                 if self.done_linefeed:
                     StandOut.stdout.filehandle.write(self.err_marker)
                     self.done_linefeed = False
-                if line.endswith('\n'):
+                if line.endswith("\n"):
                     self.done_linefeed = True
                     line = line[:-1]
-                line = line.replace('\n', '\n' + self.err_marker)
+                line = line.replace("\n", "\n" + self.err_marker)
                 if self.done_linefeed:
-                    line = line + '\n'
-                StandOut.stdout.filehandle.write(line)                  # if 'share' is on we log to stdout file as well as print
-#            StandOut.stdout.output.write('hello')
+                    line = line + "\n"
+                StandOut.stdout.filehandle.write(
+                    line
+                )  # if 'share' is on we log to stdout file as well as print
+            #            StandOut.stdout.output.write('hello')
             self.output.write(line)
         # if we have a print(function set and it's priority is high enough)
-        if self.print_fun and self.printfun_verbosity and priority >= self.printfun_verbosity:
+        if (
+            self.print_fun
+            and self.printfun_verbosity
+            and priority >= self.printfun_verbosity
+        ):
             self.use_print(line)
 
     def close(self):
         """Restore the stdout stream and close the logging file if it's open."""
-        if self.stream == 'error':
+        if self.stream == "error":
             sys.stderr = self.output
-        else:    
+        else:
             sys.stdout = self.output
         if self.filename and self.filehandle:
             self.filehandle.close()
             del self.filehandle
-        
+
     def set_print(self, print_fun):
         """Set a new print_fun."""
         self.print_fun = True
@@ -383,63 +408,67 @@ class StandOut:
 
     def flush(self):
         return self.output.flush()
-    
+
     def writelines(self, inline):
         for line in inlines:
             self.write(line)
-   
+
     def __getattr__(self, attribute):
-        if not self.__dict__.has_key(attribute) or attribute == '__doc__':
+        if not self.__dict__.has_key(attribute) or attribute == "__doc__":
             return getattr(self.output, attribute)
         return self.__dict__[attribute]
 
-##########################################################
+    ##########################################################
     # private methods, you shouldn't need to call these directly
     def use_print(self, line):
         """A wrapper function for the function passed in as 'print_fun'."""
         self.thefun[0](line)
-        
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
 
     test = StandOut()
-    print('hello')
+    print("hello")
     test.priority = 4
     print("You shouldn't see this")
     test.verbosity = 4
-    print('You should see this')
+    print("You should see this")
     test.priority = 0
-    print('but not this')
-    test.write('And you should see this\n', 5)
-    print('but not this')
-    test.filename = 'test.txt'
+    print("but not this")
+    test.write("And you should see this\n", 5)
+    print("but not this")
+    test.filename = "test.txt"
     test.priority = 5
     test.setall(5)
-    print('This should go to the file test.txt as well as the screen.')
+    print("This should go to the file test.txt as well as the screen.")
     test.file_verbosity = 7
-    print('&priority-8;')
-    print('And this should be printed to both')
-    print('&priority-6;But this should only go to the screen.')
-    print('And this should be printed to both, again.')
+    print("&priority-8;")
+    print("And this should be printed to both")
+    print("&priority-6;But this should only go to the screen.")
+    print("And this should be printed to both, again.")
 
     def afunction(line):
-        test.output.write('\nHello\n')
+        test.output.write("\nHello\n")
 
     test.set_print(afunction)
-    print("We're now using another print function - which should mirror 'hello' to the screen.")
+    print(
+        "We're now using another print function - which should mirror 'hello' to the screen."
+    )
     print("In practise you could use it to send output to a GUI window.")
     print("Or perhaps format output.")
 
-    test2 = StandOut(stream='error', share=True)        # anything printed to sys.stderr, should now be logged to the stdout file as well 
-    sys.stderr.write('Big Mistake')
-    sys.stderr.write('\n')
-    sys.stderr.write('Another Error')
-    sys.stderr.write('\n')    
-    
+    test2 = StandOut(
+        stream="error", share=True
+    )  # anything printed to sys.stderr, should now be logged to the stdout file as well
+    sys.stderr.write("Big Mistake")
+    sys.stderr.write("\n")
+    sys.stderr.write("Another Error")
+    sys.stderr.write("\n")
+
     test.close()
     test2.close()
-    print('Normality is now restored')
-    print('Any further problems, are entirely your own.')
+    print("Normality is now restored")
+    print("Any further problems, are entirely your own.")
 
 """
 ISSUES/TODO

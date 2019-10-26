@@ -20,46 +20,47 @@ import logging
 import os
 import sys
 
-__version__ = '0.3.5'
+__version__ = "0.3.5"
 
 __all__ = (
-    'serverline',
-    'SENDMAIL',
-    'validchars',
-    'alphanums',
-    'getrequest',
-    'getform',
-    'getall',
-    'isblank',
-    'formencode',
-    'formdecode',
-    'mailme',
-    'sendmailme',
-    'createhtmlmail',
-    'environdata',
-    'validemail',
-    'cgiprint',
-    'ucgiprint',
-    'replace',
-    'error',
-    'makeindexline',
-    'istrue',
-    'randomstring',
-    'blacklisted',
-    '__version__',
-    )
+    "serverline",
+    "SENDMAIL",
+    "validchars",
+    "alphanums",
+    "getrequest",
+    "getform",
+    "getall",
+    "isblank",
+    "formencode",
+    "formdecode",
+    "mailme",
+    "sendmailme",
+    "createhtmlmail",
+    "environdata",
+    "validemail",
+    "cgiprint",
+    "ucgiprint",
+    "replace",
+    "error",
+    "makeindexline",
+    "istrue",
+    "randomstring",
+    "blacklisted",
+    "__version__",
+)
 
-#logging.basicConfig(filename='/tmp/arborator.log',level=logging.DEBUG)
+# logging.basicConfig(filename='/tmp/arborator.log',level=logging.DEBUG)
 
 serverline = "Content-Type: text/html"
 
 # A common location of sendmail on servers
 SENDMAIL = "/usr/sbin/sendmail"
-validchars = 'abcdefghijklmnopqrstuvwxyz0123456789!-_*'
-alphanums = 'abcdefghijklmnopqrstuvwxyz0123456789'
+validchars = "abcdefghijklmnopqrstuvwxyz0123456789!-_*"
+alphanums = "abcdefghijklmnopqrstuvwxyz0123456789"
 
 #######################################################
 # Some functions for dealing with CGI forms (instances of FieldStorage)
+
 
 def getrequest(valuelist=None, nolist=False):
     """
@@ -72,13 +73,15 @@ def getrequest(valuelist=None, nolist=False):
     will only have their first entry returned.
     """
     import cgi
+
     form = cgi.FieldStorage()
     if valuelist is not None:
         return getform(valuelist, form, nolist=nolist)
     else:
         return getall(form, nolist=nolist)
 
-def getform(valuelist, theform, notpresent='', nolist=False):
+
+def getform(valuelist, theform, notpresent="", nolist=False):
     """
     This function, given a CGI form, extracts the data from it, based on
     valuelist passed in. Any non-present values are set to '' - although this 
@@ -105,6 +108,7 @@ def getform(valuelist, theform, notpresent='', nolist=False):
                     data[field] = theform[field][0].value
     return data
 
+
 def getall(theform, nolist=False):
     """
     Passed a form (FieldStorage instance) return all the values.
@@ -127,6 +131,7 @@ def getall(theform, nolist=False):
                 data[field] = theform[field][0].value
     return data
 
+
 def isblank(indict):
     """
     Passed an indict of values it checks if any of the values are set.
@@ -138,6 +143,7 @@ def isblank(indict):
     """
     return not [val for val in indict.values() if val]
 
+
 def formencode(theform):
     """
     A version that turns a cgi form into a single string.
@@ -145,12 +151,15 @@ def formencode(theform):
     This allows the contents of a form requested to be encoded into a single value as part of another request.
     """
     from urllib import urlencode, quote_plus
+
     return quote_plus(urlencode(getall(theform)))
+
 
 def formdecode(thestring):
     """Decode a single string back into a form like dictionary."""
     from cgi import parse_qs
-    from urllib import unquote_plus 
+    from urllib import unquote_plus
+
     return parse_qs(unquote_plus(thestring), True)
 
 
@@ -160,9 +169,18 @@ def formdecode(thestring):
 # Use mailme for sending email - specify a path to sendmail *or* a host, port etc (optionally username)
 
 
-def mailme(to_email, msg, email_subject=None, from_email=None,
-            host='localhost', port=25, username=None, password=None,
-            html=True, sendmail=None):
+def mailme(
+    to_email,
+    msg,
+    email_subject=None,
+    from_email=None,
+    host="localhost",
+    port=25,
+    username=None,
+    password=None,
+    html=True,
+    sendmail=None,
+):
     """
     This function will send an email using ``sendmail`` or ``smtplib``, depending 
     on what parameters you pass it.
@@ -186,20 +204,20 @@ def mailme(to_email, msg, email_subject=None, from_email=None,
 
     if sendmail is not None:
         # use sendmailme if specified
-        return sendmailme(to_email, msg, email_subject, from_email, 
-                            html, sendmail)
+        return sendmailme(to_email, msg, email_subject, from_email, html, sendmail)
     if not isinstance(to_email, list):
         # if we have a single email then change it into a list
         to_email = [to_email]
     #
     import smtplib
+
     #
-    head = "To: %s\r\n" % ','.join(to_email) 
+    head = "To: %s\r\n" % ",".join(to_email)
     if from_email is not None:
-        head += ('From: %s\r\n' % from_email)
+        head += "From: %s\r\n" % from_email
     # subject is in the body of an html email
     if not html and email_subject is not None:
-        head += ("Subject: %s\r\n\r\n" % email_subject)
+        head += "Subject: %s\r\n\r\n" % email_subject
     msg = head + msg
     #
     server = smtplib.SMTP(host, port)
@@ -210,9 +228,10 @@ def mailme(to_email, msg, email_subject=None, from_email=None,
     logging.debug("Send mail with result " % result)
     server.quit()
 
- 
-def sendmailme(to_email, msg, email_subject=None, from_email=None, 
-                html=True, sendmail=SENDMAIL):
+
+def sendmailme(
+    to_email, msg, email_subject=None, from_email=None, html=True, sendmail=SENDMAIL
+):
     """
     Quick and dirty, pipe a message to sendmail. Can only work on UNIX type systems 
     with sendmail.
@@ -226,15 +245,16 @@ def sendmailme(to_email, msg, email_subject=None, from_email=None,
     """
     if not isinstance(to_email, list):
         to_email = [to_email]
-    o = os.popen("%s -t" %  sendmail,"w")
-    o.write("To: %s\r\n" %  ','.join(to_email))
+    o = os.popen("%s -t" % sendmail, "w")
+    o.write("To: %s\r\n" % ",".join(to_email))
     if from_email:
-        o.write("From: %s\r\n" %  from_email)
+        o.write("From: %s\r\n" % from_email)
     if not html and email_subject:
-        o.write("Subject: %s\r\n" %  email_subject)
+        o.write("Subject: %s\r\n" % email_subject)
     o.write("\r\n")
     o.write("%s\r\n" % msg)
     o.close()
+
 
 def createhtmlmail(subject, html, text=None):
     """
@@ -245,10 +265,12 @@ def createhtmlmail(subject, html, text=None):
     Adapted from recipe 13.5 from Python Cookbook 2
     """
     import MimeWriter, mimetools, StringIO
+
     if text is None:
         # produce an approximate text from the HTML input
         import htmllib
         import formatter
+
         textout = StringIO.StringIO()
         formtext = formatter.AbstractFormatter(formatter.DumbWriter(textout))
         parser = htmllib.HTMLParser(formtext)
@@ -256,9 +278,9 @@ def createhtmlmail(subject, html, text=None):
         parser.close()
         text = textout.getvalue()
         del textout, formtext, parser
-    out = StringIO.StringIO()       # output buffer for our message
+    out = StringIO.StringIO()  # output buffer for our message
     htmlin = StringIO.StringIO(html)  # input buffer for the HTML
-    txtin = StringIO.StringIO(text)   # input buffer for the plain text
+    txtin = StringIO.StringIO(text)  # input buffer for the plain text
     writer = MimeWriter.MimeWriter(out)
     # Set up some basic headers. Place subject here because smtplib.sendmail
     # expects it to be in the message, as relevant RFCs prescribe.
@@ -270,62 +292,81 @@ def createhtmlmail(subject, html, text=None):
     writer.flushheaders()
     # the plain-text section: just copied through, assuming iso-8859-1  # XXXX always true ?
     subpart = writer.nextpart()
-    pout = subpart.startbody("text/plain", [("charset", 'iso-8859-l')]) 
+    pout = subpart.startbody("text/plain", [("charset", "iso-8859-l")])
     pout.write(txtin.read())
     txtin.close()
     # the HTML subpart of the message: quoted-printable, just in case
     subpart = writer.nextpart()
     subpart.addheader("Content-Transfer-Encoding", "quoted-printable")
-    pout = subpart.startbody("text/html", [("charset", 'us-ascii')])
-    mimetools.encode(htmlin, pout, 'quoted-printable')
+    pout = subpart.startbody("text/html", [("charset", "us-ascii")])
+    mimetools.encode(htmlin, pout, "quoted-printable")
     htmlin.close()
     # You're done; close your writer and return the message as a string
     writer.lastpart()
     msg = out.getvalue()
     out.close()
-    return msg    
+    return msg
+
 
 def environdata():
     """Returns some data about the CGI environment, in a way that can be mailed."""
-    ENVIRONLIST = [ 'REQUEST_URI','HTTP_USER_AGENT','REMOTE_ADDR','HTTP_FROM','REMOTE_HOST','REMOTE_PORT','SERVER_SOFTWARE','HTTP_REFERER','REMOTE_IDENT','REMOTE_USER','QUERY_STRING','DATE_LOCAL' ]  # XXX put this in template ??
+    ENVIRONLIST = [
+        "REQUEST_URI",
+        "HTTP_USER_AGENT",
+        "REMOTE_ADDR",
+        "HTTP_FROM",
+        "REMOTE_HOST",
+        "REMOTE_PORT",
+        "SERVER_SOFTWARE",
+        "HTTP_REFERER",
+        "REMOTE_IDENT",
+        "REMOTE_USER",
+        "QUERY_STRING",
+        "DATE_LOCAL",
+    ]  # XXX put this in template ??
     environs = []
     environs.append("\n\n---------------------------------------\n")
     for x in ENVIRONLIST:
         if os.environ.has_key(x):
             environs.append("%s: %s\n" % (x, os.environ[x]))
     environs.append("---------------------------------------\n")
-    return ''.join(environs)
+    return "".join(environs)
+
 
 def validemail(email):
     """
     A quick function to do a basic email validation.
     Returns False or the email address.
     """
-    if ' ' in email:
+    if " " in email:
         return False
-    dot = email.rfind('.')
-    at = email.find('@')
+    dot = email.rfind(".")
+    at = email.find("@")
     if dot == -1 or at < 1 or at > dot:
         return False
     return email
 
+
 ##########################################################
 
-def error(errorval=''):
+
+def error(errorval=""):
     """The generic error function."""
     print(serverline)
     print("")
-    err_msg = '''<html><head><title>An Error Has Occurred</title>
+    err_msg = """<html><head><title>An Error Has Occurred</title>
     <body><center>
     <h1>Very Sorry</h1>
-    <h2>An Error Has Occurred</h2>'''
+    <h2>An Error Has Occurred</h2>"""
     print(err_msg)
     if errorval:
-        print('<h3>'+errorval+'</h3>')
-    print('</center></body></html>')
+        print("<h3>" + errorval + "</h3>")
+    print("</center></body></html>")
     sys.exit()
-    
+
+
 #########################################################
+
 
 def makeindexline(url, startpage, total, numonpage=10, pagesonscreen=5):
     """
@@ -360,36 +401,38 @@ def makeindexline(url, startpage, total, numonpage=10, pagesonscreen=5):
     through a lot of links. Also - the current page will always be in the center of 
     the index. (So you never *need* Next just to get to the next page).
     """
-    b = '<strong>%s</strong>'
+    b = "<strong>%s</strong>"
     url = b % url
     outlist = []
-    last = ''
-    next = ''
-    numpages = total//numonpage
-    if total%numonpage:
+    last = ""
+    next = ""
+    numpages = total // numonpage
+    if total % numonpage:
         numpages += 1
     if startpage - pagesonscreen > 1:
-        outlist.append(url % (1, 'First'))
-        outlist.append('&nbsp;')
-        outlist.append(url % (startpage-pagesonscreen-1, 'Previous'))
-        outlist.append('&nbsp;')
+        outlist.append(url % (1, "First"))
+        outlist.append("&nbsp;")
+        outlist.append(url % (startpage - pagesonscreen - 1, "Previous"))
+        outlist.append("&nbsp;")
     index = max(startpage - pagesonscreen, 1)
-    end = min(startpage+pagesonscreen, numpages)
+    end = min(startpage + pagesonscreen, numpages)
     while index <= end:
         if index == startpage:
             outlist.append(b % startpage)
         else:
             outlist.append(url % (index, index))
         index += 1
-    outlist.append('&nbsp;')
-    if (startpage+pagesonscreen) < numpages:
-        outlist.append(url % (startpage+pagesonscreen+1, 'Next'))
-        outlist.append('&nbsp;')
-        outlist.append(url % (numpages, 'Last'))
+    outlist.append("&nbsp;")
+    if (startpage + pagesonscreen) < numpages:
+        outlist.append(url % (startpage + pagesonscreen + 1, "Next"))
+        outlist.append("&nbsp;")
+        outlist.append(url % (numpages, "Last"))
 
-    return '&nbsp;'.join(outlist)    
+    return "&nbsp;".join(outlist)
+
 
 ######################################
+
 
 def istrue(value):
     """
@@ -406,28 +449,36 @@ def istrue(value):
     Any other input will raise a ``KeyError``. 
     """
     return {
-        'yes': True, 'no': False,
-        'on': True, 'off': False, 
-        '1': True, '0': False,
-        'true': True, 'false': False,
-        }[value.lower()]
+        "yes": True,
+        "no": False,
+        "on": True,
+        "off": False,
+        "1": True,
+        "0": False,
+        "true": True,
+        "false": False,
+    }[value.lower()]
+
 
 def randomstring(length):
     """
     Return a random string of length 'length'.
     
     The string is comprised only of numbers and lowercase letters.
-    """ 
+    """
     import random
+
     outstring = []
     while length > 0:
         length -= 1
-        outstring.append(alphanums[int(random.random()*36)])
-    return ''.join(outstring)
+        outstring.append(alphanums[int(random.random() * 36)])
+    return "".join(outstring)
+
 
 ##################################
 
-def cgiprint(inline='', unbuff=False, line_end='\r\n'):
+
+def cgiprint(inline="", unbuff=False, line_end="\r\n"):
     """
     Print to the ``stdout``.
     
@@ -441,7 +492,8 @@ def cgiprint(inline='', unbuff=False, line_end='\r\n'):
     if unbuff:
         sys.stdout.flush()
 
-def ucgiprint(inline='', unbuff=False, encoding='UTF-8', line_end='\r\n'):
+
+def ucgiprint(inline="", unbuff=False, encoding="UTF-8", line_end="\r\n"):
     """
     A unicode version of ``cgiprint``. It allows you to store everything in your 
     script as unicode and just do your encoding in one place.
@@ -467,6 +519,7 @@ def ucgiprint(inline='', unbuff=False, encoding='UTF-8', line_end='\r\n'):
     if unbuff:
         sys.stdout.flush()
 
+
 def replace(instring, indict):
     """
     This function provides a simple but effective template system for your html 
@@ -485,15 +538,16 @@ def replace(instring, indict):
     if len(indict) > 40:
         regex = re.compile("(%s)" % "|".join(map(re.escape, indict.keys())))
         # For each match, look-up corresponding value in dictionary
-        return regex.sub(lambda mo: indict[mo.string[mo.start():mo.end()]],
-                                                                    instring)
+        return regex.sub(lambda mo: indict[mo.string[mo.start() : mo.end()]], instring)
     for key in indict:
         instring = instring.replace(key, indict[key])
     return instring
 
+
 ############################
 
-def blacklisted(ip, DNSBL_HOST='sbl-xbl.spamhaus.org'):
+
+def blacklisted(ip, DNSBL_HOST="sbl-xbl.spamhaus.org"):
     """
     Returns ``True`` if ip address is a blacklisted IP (i.e. from a spammer).
     
@@ -532,22 +586,24 @@ def blacklisted(ip, DNSBL_HOST='sbl-xbl.spamhaus.org'):
     """
     # turn '1.2.3.4' into '4.3.2.1.sbl-xbl.spamhaus.org'
     import socket
+
     # convert domain name to IP
     # raises an error if domain name can't be resolved
     ip = socket.gethostbyname(ip)
-    iplist = ip.split('.')
+    iplist = ip.split(".")
     iplist.reverse()
-    ip = '%s.%s' % ('.'.join(iplist), DNSBL_HOST)
+    ip = "%s.%s" % (".".join(iplist), DNSBL_HOST)
     try:
         socket.gethostbyname(ip)
         return True
     except socket.gaierror:
         return False
 
+
 ############################
 
-if __name__ == '__main__':
-    print('No tests yet - sorry')
+if __name__ == "__main__":
+    print("No tests yet - sorry")
 
 """
 TODO/ISSUES

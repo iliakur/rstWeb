@@ -15,11 +15,12 @@
 # Scripts maintained at http://www.voidspace.org.uk/python/index.shtml
 # E-mail fuzzyman@voidspace.org.uk
 from __future__ import generators
+
 """
 This module contains convenience functions for working with files and paths.
 """
 
-__version__ = '0.2.4'
+__version__ = "0.2.4"
 
 
 import os
@@ -27,39 +28,41 @@ import sys
 import time
 
 __all__ = (
-    'readlines',
-    'writelines',
-    'readbinary',
-    'writebinary',
-    'readfile',
-    'writefile',
-    'tslash',
-    'relpath',
-    'splitall',
-    'walkfiles',
-    'walkdirs',
-    'walkemptydirs',
-    'formatbytes',
-    'fullcopy',
-    'import_path',
-    'onerror',
-    'get_main_dir',
-    'main_is_frozen',
-    'Lock',
-    'LockError',
-    'LockFile',
-    '__version__',
-    )
+    "readlines",
+    "writelines",
+    "readbinary",
+    "writebinary",
+    "readfile",
+    "writefile",
+    "tslash",
+    "relpath",
+    "splitall",
+    "walkfiles",
+    "walkdirs",
+    "walkemptydirs",
+    "formatbytes",
+    "fullcopy",
+    "import_path",
+    "onerror",
+    "get_main_dir",
+    "main_is_frozen",
+    "Lock",
+    "LockError",
+    "LockFile",
+    "__version__",
+)
 
 ######################################
 # Functions to read and write files in text and binary mode.
 
+
 def readlines(filename):
     """Passed a filename, it reads it, and returns a list of lines. (Read in text mode)"""
-    filehandle = open(filename, 'r')
+    filehandle = open(filename, "r")
     outfile = filehandle.readlines()
     filehandle.close()
     return outfile
+
 
 def writelines(filename, infile, newline=False):
     """
@@ -68,40 +71,46 @@ def writelines(filename, infile, newline=False):
     If ``newline`` is ``True`` (default is ``False``) it adds a newline to each
     line.
     """
-    filehandle = open(filename, 'w')
+    filehandle = open(filename, "w")
     if newline:
-        infile = [line + '\n' for line in infile]
+        infile = [line + "\n" for line in infile]
     filehandle.writelines(infile)
     filehandle.close()
 
+
 def readbinary(filename):
     """Given a filename, read a file in binary mode. It returns a single string."""
-    filehandle = open(filename, 'rb')
+    filehandle = open(filename, "rb")
     thisfile = filehandle.read()
     filehandle.close()
     return thisfile
 
+
 def writebinary(filename, infile):
     """Given a filename and a string, write the file in binary mode. """
-    filehandle = open(filename, 'wb')
+    filehandle = open(filename, "wb")
     filehandle.write(infile)
     filehandle.close()
 
+
 def readfile(filename):
     """Given a filename, read a file in text mode. It returns a single string."""
-    filehandle = open(filename, 'r')
+    filehandle = open(filename, "r")
     outfile = filehandle.read()
     filehandle.close()
     return outfile
 
+
 def writefile(filename, infile):
     """Given a filename and a string, write the file in text mode."""
-    filehandle = open(filename, 'w')
+    filehandle = open(filename, "w")
     filehandle.write(infile)
     filehandle.close()
-    
+
+
 ####################################################################
 # Some functions for dealing with paths
+
 
 def tslash(apath):
     """
@@ -110,10 +119,11 @@ def tslash(apath):
     It doesn't use ``os.sep`` because you end up in trouble on windoze, when you
     want separators for URLs.
     """
-    if apath and apath != '.' and not apath.endswith('/') and not apath.endswith('\\'):
-        return apath + '/'
+    if apath and apath != "." and not apath.endswith("/") and not apath.endswith("\\"):
+        return apath + "/"
     else:
         return apath
+
 
 def relpath(origin, dest):
     """
@@ -126,8 +136,8 @@ def relpath(origin, dest):
     
     Adapted from `path.py <http://www.jorendorff.com/articles/python/path/>`_ by Jason Orendorff. 
     """
-    origin = os.path.abspath(origin).replace('\\', '/')
-    dest = os.path.abspath(dest).replace('\\', '/')
+    origin = os.path.abspath(origin).replace("\\", "/")
+    dest = os.path.abspath(dest).replace("\\", "/")
     #
     orig_list = splitall(os.path.normcase(origin))
     # Don't normcase dest!  We want to preserve the case.
@@ -154,7 +164,8 @@ def relpath(origin, dest):
         # If they happen to be identical, use os.curdir.
         return os.curdir
     else:
-        return os.path.join(*segments).replace('\\', '/')
+        return os.path.join(*segments).replace("\\", "/")
+
 
 def splitall(loc):
     """
@@ -178,12 +189,14 @@ def splitall(loc):
     parts.reverse()
     return parts
 
+
 #######################################################################
 # a pre 2.3 walkfiles function - adapted from the path module by Jason Orendorff
 
 join = os.path.join
 isdir = os.path.isdir
 isfile = os.path.isfile
+
 
 def walkfiles(thisdir):
     """
@@ -198,7 +211,8 @@ def walkfiles(thisdir):
         elif isdir(thischild):
             for f in walkfiles(thischild):
                 yield f
-                
+
+
 def walkdirs(thisdir):
     """
     Walk through all the subdirectories in a tree. Recursively yields directory
@@ -213,6 +227,7 @@ def walkdirs(thisdir):
                 yield f
             yield thischild
 
+
 def walkemptydirs(thisdir):
     """
     Recursively yield names of *empty* directories.
@@ -221,16 +236,18 @@ def walkemptydirs(thisdir):
     """
     if not os.listdir(thisdir):
         # if the directory is empty.. then yield it
-        yield thisdir   
+        yield thisdir
     for child in os.listdir(thisdir):
         thischild = join(thisdir, child)
         if isdir(thischild):
             for emptydir in walkemptydirs(thischild):
                 yield emptydir
 
+
 ###############################################################
 # formatbytes takes a filesize (as returned by os.getsize() )
 # and formats it for display in one of two ways !!
+
 
 def formatbytes(sizeint, configdict=None, **configs):
     """
@@ -269,12 +286,14 @@ def formatbytes(sizeint, configdict=None, **configs):
     
         It currently uses the plural form even for singular.
     """
-    defaultconfigs = {  'forcekb' : False,
-                        'largestonly' : True,
-                        'kiloname' : 'Kbytes',
-                        'meganame' : 'Mbytes',
-                        'bytename' : 'bytes',
-                        'nospace' : True}
+    defaultconfigs = {
+        "forcekb": False,
+        "largestonly": True,
+        "kiloname": "Kbytes",
+        "meganame": "Mbytes",
+        "bytename": "bytes",
+        "nospace": True,
+    }
     if configdict is None:
         configdict = {}
     for entry in configs:
@@ -285,30 +304,31 @@ def formatbytes(sizeint, configdict=None, **configs):
         if not configdict.has_key(keyword):
             configdict[keyword] = defaultconfigs[keyword]
     #
-    if configdict['nospace']:
-        space = ''
+    if configdict["nospace"]:
+        space = ""
     else:
-        space = ' '
+        space = " "
     #
     mb, kb, rb = bytedivider(sizeint)
-    if configdict['largestonly']:
-        if mb and not configdict['forcekb']:
-            return stringround(mb, kb)+ space + configdict['meganame']
-        elif kb or configdict['forcekb']:
-            if mb and configdict['forcekb']:
-                kb += 1024*mb
-            return stringround(kb, rb) + space+ configdict['kiloname']
+    if configdict["largestonly"]:
+        if mb and not configdict["forcekb"]:
+            return stringround(mb, kb) + space + configdict["meganame"]
+        elif kb or configdict["forcekb"]:
+            if mb and configdict["forcekb"]:
+                kb += 1024 * mb
+            return stringround(kb, rb) + space + configdict["kiloname"]
         else:
-            return str(rb) + space + configdict['bytename']
+            return str(rb) + space + configdict["bytename"]
     else:
-        outstr = ''
-        if mb and not configdict['forcekb']:
-            outstr = str(mb) + space + configdict['meganame'] +', '
-        if kb or configdict['forcekb'] or mb:
-            if configdict['forcekb']:
-                kb += 1024*mb
-            outstr += str(kb) + space + configdict['kiloname'] +', '
-        return outstr + str(rb) + space + configdict['bytename']
+        outstr = ""
+        if mb and not configdict["forcekb"]:
+            outstr = str(mb) + space + configdict["meganame"] + ", "
+        if kb or configdict["forcekb"] or mb:
+            if configdict["forcekb"]:
+                kb += 1024 * mb
+            outstr += str(kb) + space + configdict["kiloname"] + ", "
+        return outstr + str(rb) + space + configdict["bytename"]
+
 
 def stringround(main, rest):
     """
@@ -316,8 +336,9 @@ def stringround(main, rest):
     appropriately.
     """
     # divide an int by a float... get a float
-    value = main + rest/1024.0
+    value = main + rest / 1024.0
     return str(round(value, 1))
+
 
 def bytedivider(nbytes):
     """
@@ -331,7 +352,9 @@ def bytedivider(nbytes):
     kb, rb = divmod(remainder, 1024)
     return (mb, kb, rb)
 
+
 ########################################
+
 
 def fullcopy(src, dst):
     """
@@ -340,11 +363,14 @@ def fullcopy(src, dst):
     If the dst directory doesn't exist, we will attempt to create it using makedirs.
     """
     import shutil
+
     if not os.path.isdir(os.path.dirname(dst)):
         os.makedirs(os.path.dirname(dst))
-    shutil.copy(src, dst)    
+    shutil.copy(src, dst)
+
 
 #######################################
+
 
 def import_path(fullpath, strict=True):
     """
@@ -373,23 +399,30 @@ def import_path(fullpath, strict=True):
         path = os.path.split(module.__file__)[0]
         # FIXME: doesn't *startswith* allow room for errors ?
         if not fullpath.startswith(path):
-            raise ImportError("Module '%s' found, but not in '%s'" % (
-                  filename, fullpath))
+            raise ImportError(
+                "Module '%s' found, but not in '%s'" % (filename, fullpath)
+            )
     #
     return module
+
 
 ##############################################################################
 # These functions get us our directory name
 # Even if py2exe or another freeze tool has been used
 
+
 def main_is_frozen():
     """Return ``True`` if we're running from a frozen program."""
     import imp
+
     return (
         # new py2exe
-        hasattr(sys, "frozen") or
+        hasattr(sys, "frozen")
+        or
         # tools/freeze
-        imp.is_frozen("__main__"))
+        imp.is_frozen("__main__")
+    )
+
 
 def get_main_dir():
     """Return the script directory - whether we're frozen or not."""
@@ -397,7 +430,9 @@ def get_main_dir():
         return os.path.abspath(os.path.dirname(sys.executable))
     return os.path.abspath(os.path.dirname(sys.argv[0]))
 
+
 ##############################
+
 
 def onerror(func, path, exc_info):
     """
@@ -411,6 +446,7 @@ def onerror(func, path, exc_info):
     Usage : ``shutil.rmtree(path, onerror=onerror)``
     """
     import stat
+
     if not os.access(path, os.W_OK):
         # Is the error an access error ?
         os.chmod(path, stat.S_IWUSR)
@@ -418,11 +454,14 @@ def onerror(func, path, exc_info):
     else:
         raise
 
+
 ##########################################################
 # A set of object for providing simple, cross-platform file locking
 
+
 class LockError(IOError):
     """The generic error for locking - it is a subclass of ``IOError``."""
+
 
 class Lock(object):
     """A simple file lock, compatible with windows and Unixes."""
@@ -457,7 +496,7 @@ class Lock(object):
         If ``force`` is ``False``, then on timeout a ``LockError`` is raised.
         """
         if self.locked:
-            raise LockError('%s is already locked' % self.filename)
+            raise LockError("%s is already locked" % self.filename)
         t = 0
         while t < self.timeout:
             t += self.step
@@ -471,7 +510,7 @@ class Lock(object):
         if force:
             self.locked = True
         else:
-            raise LockError('Failed to acquire lock on %s' % self.filename)
+            raise LockError("Failed to acquire lock on %s" % self.filename)
 
     def unlock(self, ignore=True):
         """
@@ -482,26 +521,26 @@ class Lock(object):
         via a timeout.)
         """
         if not self.locked:
-            raise LockError('%s is not locked' % self.filename)
+            raise LockError("%s is not locked" % self.filename)
         self.locked = False
         try:
             os.rmdir(self._mungedname())
         except os.error as err:
             if not ignore:
-                raise LockError('unlocking appeared to fail - %s' %
-                    self.filename)
+                raise LockError("unlocking appeared to fail - %s" % self.filename)
 
     def _mungedname(self):
         """
         Override this in a subclass if you want to change the way ``Lock`` 
         creates the directory name.
         """
-        return self.filename + '_'
+        return self.filename + "_"
 
     def __del__(self):
         """Auto unlock when object is deleted."""
         if self.locked:
             self.unlock()
+
 
 class LockFile(Lock):
     """
@@ -521,8 +560,7 @@ class LockFile(Lock):
           acquire a lock using ``LockFile`` or ``Lock``.
     """
 
-    def __init__(self, filename, mode='r', bufsize=-1, timeout=5, step=0.1,
-        force=True):
+    def __init__(self, filename, mode="r", bufsize=-1, timeout=5, step=0.1, force=True):
         """
         Create a file like object that is locked (using the ``Lock`` class)
         until it is closed.
@@ -567,7 +605,7 @@ class LockFile(Lock):
 
     def __setattr__(self, name, value):
         """Only allow attribute setting that don't clash with the file."""
-        if not '_file' in self.__dict__:
+        if not "_file" in self.__dict__:
             Lock.__setattr__(self, name, value)
         elif hasattr(self._file, name):
             return setattr(self._file, name, value)
@@ -579,6 +617,7 @@ class LockFile(Lock):
         if self.locked:
             self.unlock()
             self._file.close()
+
 
 """
 

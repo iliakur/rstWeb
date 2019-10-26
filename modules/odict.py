@@ -17,31 +17,37 @@ from __future__ import generators
 
 """A dict that keeps keys in insertion order"""
 
-__author__ = ('Nicola Larosa <nico-NoSp@m-tekNico.net>,'
-    'Michael Foord <fuzzyman AT voidspace DOT org DOT uk>')
+__author__ = (
+    "Nicola Larosa <nico-NoSp@m-tekNico.net>,"
+    "Michael Foord <fuzzyman AT voidspace DOT org DOT uk>"
+)
 
 __docformat__ = "restructuredtext en"
 
-__revision__ = '$Id: odict.py 129 2005-09-12 18:15:28Z teknico $'
+__revision__ = "$Id: odict.py 129 2005-09-12 18:15:28Z teknico $"
 
-__version__ = '0.2.1'
+__version__ = "0.2.1"
 
-__all__ = ['OrderedDict', 'SequenceOrderedDict']
+__all__ = ["OrderedDict", "SequenceOrderedDict"]
 
 from warnings import warn
 
 import sys
+
 if sys.version_info[0] < 3:
     from types import SliceType
 else:
     from types import *
-    SliceType = type('slice')
+
+    SliceType = type("slice")
 
 
 import sys
+
 INTP_VER = sys.version_info[:2]
 if INTP_VER < (2, 2):
     raise RuntimeError("Python v.2.2 or later needed")
+
 
 class OrderedDict(dict):
     """
@@ -126,7 +132,7 @@ class OrderedDict(dict):
             dict.update(self, init_val)
         elif isinstance(init_val, dict):
             # we lose compatibility with other ordered dict types this way
-            raise TypeError('undefined order, cannot get items from dict')
+            raise TypeError("undefined order, cannot get items from dict")
         else:
             self._sequence = []
             # FIXME: efficiency ?
@@ -139,12 +145,14 @@ class OrderedDict(dict):
                 try:
                     key, val = item
                 except TypeError:
-                    raise TypeError('cannot convert dictionary update'
-                        ' sequence element #%d to a sequence' % idx)
+                    raise TypeError(
+                        "cannot convert dictionary update"
+                        " sequence element #%d to a sequence" % idx
+                    )
                 self[key] = val
                 idx += 1
 
-### Special methods ###
+    ### Special methods ###
 
     def __delitem__(self, key):
         """
@@ -193,11 +201,12 @@ class OrderedDict(dict):
         """
         if isinstance(other, dict):
             if not isinstance(other, OrderedDict):
-                raise TypeError('Equality undefined for OrderedDicts and '
-                    'dictionaries')
+                raise TypeError(
+                    "Equality undefined for OrderedDicts and " "dictionaries"
+                )
             # FIXME: efficiency ?
             #   Generate both item lists for each compare
-            return (self.items() == other.items())
+            return self.items() == other.items()
         else:
             return False
 
@@ -214,10 +223,10 @@ class OrderedDict(dict):
         TypeError: Can only compare with other OrderedDicts
         """
         if not isinstance(other, OrderedDict):
-            raise TypeError('Can only compare with other OrderedDicts')
+            raise TypeError("Can only compare with other OrderedDicts")
         # FIXME: efficiency ?
         #   Generate both item lists for each compare
-        return (self.items() < other.items())
+        return self.items() < other.items()
 
     def __le__(self, other):
         """
@@ -235,10 +244,10 @@ class OrderedDict(dict):
         1
         """
         if not isinstance(other, OrderedDict):
-            raise TypeError('Can only compare with other OrderedDicts')
+            raise TypeError("Can only compare with other OrderedDicts")
         # FIXME: efficiency ?
         #   Generate both item lists for each compare
-        return (self.items() <= other.items())
+        return self.items() <= other.items()
 
     def __ne__(self, other):
         """
@@ -259,8 +268,9 @@ class OrderedDict(dict):
         """
         if isinstance(other, dict):
             if not isinstance(other, OrderedDict):
-                raise TypeError('Inequality undefined for OrderedDicts and '
-                    'dictionaries')
+                raise TypeError(
+                    "Inequality undefined for OrderedDicts and " "dictionaries"
+                )
             # FIXME: efficiency ?
             #   Generate both item lists for each compare
             return not (self.items() == other.items())
@@ -280,10 +290,10 @@ class OrderedDict(dict):
         TypeError: Can only compare with other OrderedDicts
         """
         if not isinstance(other, OrderedDict):
-            raise TypeError('Can only compare with other OrderedDicts')
+            raise TypeError("Can only compare with other OrderedDicts")
         # FIXME: efficiency ?
         #   Generate both item lists for each compare
-        return (self.items() > other.items())
+        return self.items() > other.items()
 
     def __ge__(self, other):
         """
@@ -301,10 +311,10 @@ class OrderedDict(dict):
         1
         """
         if not isinstance(other, OrderedDict):
-            raise TypeError('Can only compare with other OrderedDicts')
+            raise TypeError("Can only compare with other OrderedDicts")
         # FIXME: efficiency ?
         #   Generate both item lists for each compare
-        return (self.items() >= other.items())
+        return self.items() >= other.items()
 
     def __repr__(self):
         """
@@ -321,8 +331,10 @@ class OrderedDict(dict):
         >>> r2 == str(OrderedDict((('a', 'b'), ('e', 'f'), ('c', 'd'))))
         1
         """
-        return '%s([%s])' % (self.__class__.__name__, ', '.join(
-            ['(%r, %r)' % (key, self[key]) for key in self._sequence]))
+        return "%s([%s])" % (
+            self.__class__.__name__,
+            ", ".join(["(%r, %r)" % (key, self[key]) for key in self._sequence]),
+        )
 
     def __setitem__(self, key, val):
         """
@@ -385,7 +397,7 @@ class OrderedDict(dict):
         if isinstance(key, SliceType):
             if not isinstance(val, OrderedDict):
                 # FIXME: allow a list of tuples ?
-                raise TypeError('slice assignment requires an OrderedDict')
+                raise TypeError("slice assignment requires an OrderedDict")
             keys = self._sequence[key]
             # NOTE: Could use ``range(*key.indices(len(self._sequence)))``
             indexes = range(len(self._sequence))[key]
@@ -400,22 +412,24 @@ class OrderedDict(dict):
                 for k in newkeys:
                     if k in self:
                         if self.strict:
-                            raise ValueError('slice assignment must be from '
-                                'unique keys')
+                            raise ValueError(
+                                "slice assignment must be from " "unique keys"
+                            )
                         else:
                             # NOTE: This removes duplicate keys *first*
                             #   so start position might have changed ?
                             del self[k]
-                self._sequence = (self._sequence[:pos] + newkeys +
-                    self._sequence[pos:])
+                self._sequence = self._sequence[:pos] + newkeys + self._sequence[pos:]
                 dict.update(self, val)
             else:
                 # extended slice
                 # length of new slice must be the same as the one being
                 # replaced
                 if len(keys) != len(val):
-                    raise ValueError('attempt to assign sequence of size %s '
-                        'to extended slice of size %s' % (len(val), len(keys)))
+                    raise ValueError(
+                        "attempt to assign sequence of size %s "
+                        "to extended slice of size %s" % (len(val), len(keys))
+                    )
                 # FIXME: efficiency ?
                 del self[key]
                 item_list = zip(indexes, val.items())
@@ -424,8 +438,7 @@ class OrderedDict(dict):
                 item_list.sort()
                 for pos, (newkey, newval) in item_list:
                     if self.strict and newkey in self:
-                        raise ValueError('slice assignment must be from unique'
-                        ' keys')
+                        raise ValueError("slice assignment must be from unique" " keys")
                     self.insert(pos, newkey, newval)
         else:
             if not self.has_key(key):
@@ -458,9 +471,11 @@ class OrderedDict(dict):
         Implemented so that accesses to ``sequence`` raise a warning and are
         diverted to the new ``setkeys`` method.
         """
-        if name == 'sequence':
-            warn('use of sequence attribute is deprecated. Use keys method '
-                'instead.', DeprecationWarning)
+        if name == "sequence":
+            warn(
+                "use of sequence attribute is deprecated. Use keys method " "instead.",
+                DeprecationWarning,
+            )
             # NOTE: doesn't return anything
             self.setkeys(value)
         else:
@@ -476,9 +491,11 @@ class OrderedDict(dict):
         >>> d.sequence
         []
         """
-        if name == 'sequence':
-            warn('use of sequence attribute is deprecated. Use keys method '
-                'instead.', DeprecationWarning)
+        if name == "sequence":
+            warn(
+                "use of sequence attribute is deprecated. Use keys method " "instead.",
+                DeprecationWarning,
+            )
             # NOTE: Still (currently) returns a direct reference. Need to
             #   because code that uses sequence will expect to be able to
             #   mutate it in place.
@@ -503,10 +520,10 @@ class OrderedDict(dict):
         0
         """
         from copy import deepcopy
+
         return self.__class__(deepcopy(self.items(), memo), self.strict)
 
-
-### Read-only methods ###
+    ### Read-only methods ###
 
     def copy(self):
         """
@@ -565,11 +582,13 @@ class OrderedDict(dict):
         Traceback (most recent call last):
         StopIteration
         """
+
         def make_iter(self=self):
             keys = self.iterkeys()
             while True:
                 key = keys.next()
                 yield (key, self[key])
+
         return make_iter()
 
     def iterkeys(self):
@@ -602,13 +621,15 @@ class OrderedDict(dict):
         Traceback (most recent call last):
         StopIteration
         """
+
         def make_iter(self=self):
             keys = self.iterkeys()
             while True:
                 yield self[keys.next()]
+
         return make_iter()
 
-### Read-write methods ###
+    ### Read-write methods ###
 
     def clear(self):
         """
@@ -639,8 +660,9 @@ class OrderedDict(dict):
         TypeError: pop expected at most 2 arguments, got 3
         """
         if len(args) > 1:
-            raise TypeError('pop expected at most 2 arguments, got %s' %
-                (len(args) + 1))
+            raise TypeError(
+                "pop expected at most 2 arguments, got %s" % (len(args) + 1)
+            )
         if key in self:
             val = self[key]
             del self[key]
@@ -671,14 +693,14 @@ class OrderedDict(dict):
         IndexError: popitem(): index 2 not valid
         """
         if not self._sequence:
-            raise KeyError('popitem(): dictionary is empty')
+            raise KeyError("popitem(): dictionary is empty")
         try:
             key = self._sequence[i]
         except IndexError:
-            raise IndexError('popitem(): index %s not valid' % i)
+            raise IndexError("popitem(): index %s not valid" % i)
         return (key, self.pop(key))
 
-    def setdefault(self, key, defval = None):
+    def setdefault(self, key, defval=None):
         """
         >>> d = OrderedDict(((1, 3), (3, 2), (2, 1)))
         >>> d.setdefault(1)
@@ -718,7 +740,7 @@ class OrderedDict(dict):
                 self[key] = val
         elif isinstance(from_od, dict):
             # we lose compatibility with other ordered dict types this way
-            raise TypeError('undefined order, cannot get items from dict')
+            raise TypeError("undefined order, cannot get items from dict")
         else:
             idx = 0
             # sequence of 2-item sequences, or error
@@ -726,8 +748,10 @@ class OrderedDict(dict):
                 try:
                     key, val = item
                 except TypeError:
-                    raise TypeError('cannot convert dictionary update'
-                        ' sequence element #%d to a sequence' % idx)
+                    raise TypeError(
+                        "cannot convert dictionary update"
+                        " sequence element #%d to a sequence" % idx
+                    )
                 self[key] = val
                 idx += 1
 
@@ -773,7 +797,7 @@ class OrderedDict(dict):
         kcopy.sort()
         self._sequence.sort()
         if kcopy != self._sequence:
-            raise KeyError('Keylist is not the same as current keylist.')
+            raise KeyError("Keylist is not the same as current keylist.")
         # NOTE: This makes the _sequence attribute a new object, instead
         #       of changing it in place.
         # FIXME: efficiency ?
@@ -796,11 +820,10 @@ class OrderedDict(dict):
         """
         if len(values) != len(self):
             # FIXME: correct error to raise ?
-            raise ValueError('Value list is not the same length as the '
-                'OrderedDict.')
+            raise ValueError("Value list is not the same length as the " "OrderedDict.")
         self.update(zip(self, values))
 
-### Sequence Methods ###
+    ### Sequence Methods ###
 
     def index(self, key):
         """
@@ -864,6 +887,7 @@ class OrderedDict(dict):
         """
         self._sequence.sort(*args, **kwargs)
 
+
 class _keys(object):
     # FIXME: should this object be a subclass of list ?
     """
@@ -898,8 +922,10 @@ class _keys(object):
             # check length is the same
             indexes = range(len(self._main._sequence))[index]
             if len(indexes) != len(name):
-                raise ValueError('attempt to assign sequence of size %s '
-                    'to slice of size %s' % (len(name), len(indexes)))
+                raise ValueError(
+                    "attempt to assign sequence of size %s "
+                    "to slice of size %s" % (len(name), len(indexes))
+                )
             # check they are the same keys
             # FIXME: Use set
             old_keys = self._main._sequence[index]
@@ -907,54 +933,103 @@ class _keys(object):
             old_keys.sort()
             new_keys.sort()
             if old_keys != new_keys:
-                raise KeyError('Keylist is not the same as current keylist.')
+                raise KeyError("Keylist is not the same as current keylist.")
             orig_vals = [self._main[k] for k in name]
             del self._main[index]
             vals = zip(indexes, name, orig_vals)
             vals.sort()
             for i, k, v in vals:
                 if self._main.strict and k in self._main:
-                    raise ValueError('slice assignment must be from '
-                        'unique keys')
+                    raise ValueError("slice assignment must be from " "unique keys")
                 self._main.insert(i, k, v)
         else:
-            raise ValueError('Cannot assign to keys')
+            raise ValueError("Cannot assign to keys")
 
     ### following methods pinched from UserList and adapted ###
-    def __repr__(self): return repr(self._main._sequence)
+    def __repr__(self):
+        return repr(self._main._sequence)
 
     # FIXME: do we need to check if we are comparing with another ``_keys``
     #   object ? (like the __cast method of UserList)
-    def __lt__(self, other): return self._main._sequence <  other
-    def __le__(self, other): return self._main._sequence <= other
-    def __eq__(self, other): return self._main._sequence == other
-    def __ne__(self, other): return self._main._sequence != other
-    def __gt__(self, other): return self._main._sequence >  other
-    def __ge__(self, other): return self._main._sequence >= other
-    # FIXME: do we need __cmp__ as well as rich comparisons ?
-    def __cmp__(self, other): return cmp(self._main._sequence, other)
+    def __lt__(self, other):
+        return self._main._sequence < other
 
-    def __contains__(self, item): return item in self._main._sequence
-    def __len__(self): return len(self._main._sequence)
-    def __iter__(self): return self._main.iterkeys()
-    def count(self, item): return self._main._sequence.count(item)
-    def index(self, item, *args): return self._main._sequence.index(item, *args)
-    def reverse(self): self._main._sequence.reverse()
-    def sort(self, *args, **kwds): self._main._sequence.sort(*args, **kwds)
-    def __mul__(self, n): return self._main._sequence*n
+    def __le__(self, other):
+        return self._main._sequence <= other
+
+    def __eq__(self, other):
+        return self._main._sequence == other
+
+    def __ne__(self, other):
+        return self._main._sequence != other
+
+    def __gt__(self, other):
+        return self._main._sequence > other
+
+    def __ge__(self, other):
+        return self._main._sequence >= other
+
+    # FIXME: do we need __cmp__ as well as rich comparisons ?
+    def __cmp__(self, other):
+        return cmp(self._main._sequence, other)
+
+    def __contains__(self, item):
+        return item in self._main._sequence
+
+    def __len__(self):
+        return len(self._main._sequence)
+
+    def __iter__(self):
+        return self._main.iterkeys()
+
+    def count(self, item):
+        return self._main._sequence.count(item)
+
+    def index(self, item, *args):
+        return self._main._sequence.index(item, *args)
+
+    def reverse(self):
+        self._main._sequence.reverse()
+
+    def sort(self, *args, **kwds):
+        self._main._sequence.sort(*args, **kwds)
+
+    def __mul__(self, n):
+        return self._main._sequence * n
+
     __rmul__ = __mul__
-    def __add__(self, other): return self._main._sequence + other
-    def __radd__(self, other): return other + self._main._sequence
+
+    def __add__(self, other):
+        return self._main._sequence + other
+
+    def __radd__(self, other):
+        return other + self._main._sequence
 
     ## following methods not implemented for keys ##
-    def __delitem__(self, i): raise TypeError('Can\'t delete items from keys')
-    def __iadd__(self, other): raise TypeError('Can\'t add in place to keys')
-    def __imul__(self, n): raise TypeError('Can\'t multiply keys in place')
-    def append(self, item): raise TypeError('Can\'t append items to keys')
-    def insert(self, i, item): raise TypeError('Can\'t insert items into keys')
-    def pop(self, i=-1): raise TypeError('Can\'t pop items from keys')
-    def remove(self, item): raise TypeError('Can\'t remove items from keys')
-    def extend(self, other): raise TypeError('Can\'t extend keys')
+    def __delitem__(self, i):
+        raise TypeError("Can't delete items from keys")
+
+    def __iadd__(self, other):
+        raise TypeError("Can't add in place to keys")
+
+    def __imul__(self, n):
+        raise TypeError("Can't multiply keys in place")
+
+    def append(self, item):
+        raise TypeError("Can't append items to keys")
+
+    def insert(self, i, item):
+        raise TypeError("Can't insert items into keys")
+
+    def pop(self, i=-1):
+        raise TypeError("Can't pop items from keys")
+
+    def remove(self, item):
+        raise TypeError("Can't remove items from keys")
+
+    def extend(self, other):
+        raise TypeError("Can't extend keys")
+
 
 class _items(object):
     """
@@ -989,8 +1064,7 @@ class _items(object):
             orig = self._main.keys[index]
             key, value = item
             if self._main.strict and key in self and (key != orig):
-                raise ValueError('slice assignment must be from '
-                        'unique keys')
+                raise ValueError("slice assignment must be from " "unique keys")
             # delete the current one
             del self._main[self._main._sequence[index]]
             self._main.insert(index, key, value)
@@ -1006,29 +1080,63 @@ class _items(object):
             del self._main[key]
 
     ### following methods pinched from UserList and adapted ###
-    def __repr__(self): return repr(self._main.items())
+    def __repr__(self):
+        return repr(self._main.items())
 
     # FIXME: do we need to check if we are comparing with another ``_items``
     #   object ? (like the __cast method of UserList)
-    def __lt__(self, other): return self._main.items() <  other
-    def __le__(self, other): return self._main.items() <= other
-    def __eq__(self, other): return self._main.items() == other
-    def __ne__(self, other): return self._main.items() != other
-    def __gt__(self, other): return self._main.items() >  other
-    def __ge__(self, other): return self._main.items() >= other
-    def __cmp__(self, other): return cmp(self._main.items(), other)
+    def __lt__(self, other):
+        return self._main.items() < other
 
-    def __contains__(self, item): return item in self._main.items()
-    def __len__(self): return len(self._main._sequence) # easier :-)
-    def __iter__(self): return self._main.iteritems()
-    def count(self, item): return self._main.items().count(item)
-    def index(self, item, *args): return self._main.items().index(item, *args)
-    def reverse(self): self._main.reverse()
-    def sort(self, *args, **kwds): self._main.sort(*args, **kwds)
-    def __mul__(self, n): return self._main.items()*n
+    def __le__(self, other):
+        return self._main.items() <= other
+
+    def __eq__(self, other):
+        return self._main.items() == other
+
+    def __ne__(self, other):
+        return self._main.items() != other
+
+    def __gt__(self, other):
+        return self._main.items() > other
+
+    def __ge__(self, other):
+        return self._main.items() >= other
+
+    def __cmp__(self, other):
+        return cmp(self._main.items(), other)
+
+    def __contains__(self, item):
+        return item in self._main.items()
+
+    def __len__(self):
+        return len(self._main._sequence)  # easier :-)
+
+    def __iter__(self):
+        return self._main.iteritems()
+
+    def count(self, item):
+        return self._main.items().count(item)
+
+    def index(self, item, *args):
+        return self._main.items().index(item, *args)
+
+    def reverse(self):
+        self._main.reverse()
+
+    def sort(self, *args, **kwds):
+        self._main.sort(*args, **kwds)
+
+    def __mul__(self, n):
+        return self._main.items() * n
+
     __rmul__ = __mul__
-    def __add__(self, other): return self._main.items() + other
-    def __radd__(self, other): return other + self._main.items()
+
+    def __add__(self, other):
+        return self._main.items() + other
+
+    def __radd__(self, other):
+        return other + self._main.items()
 
     def append(self, item):
         """Add an item to the end."""
@@ -1049,7 +1157,7 @@ class _items(object):
         try:
             assert value == self._main[key]
         except (KeyError, AssertionError):
-            raise ValueError('ValueError: list.remove(x): x not in list')
+            raise ValueError("ValueError: list.remove(x): x not in list")
         else:
             del self._main[key]
 
@@ -1064,7 +1172,8 @@ class _items(object):
 
     ## following methods not implemented for items ##
 
-    def __imul__(self, n): raise TypeError('Can\'t multiply items in place')
+    def __imul__(self, n):
+        raise TypeError("Can't multiply items in place")
 
 
 class _values(object):
@@ -1099,8 +1208,10 @@ class _values(object):
         if isinstance(index, SliceType):
             keys = self._main._sequence[index]
             if len(keys) != len(value):
-                raise ValueError('attempt to assign sequence of size %s '
-                    'to slice of size %s' % (len(name), len(keys)))
+                raise ValueError(
+                    "attempt to assign sequence of size %s "
+                    "to slice of size %s" % (len(name), len(keys))
+                )
             # FIXME: efficiency ?  Would be better to calculate the indexes
             #   directly from the slice object
             # NOTE: the new keys can collide with existing keys (or even
@@ -1111,23 +1222,46 @@ class _values(object):
             self._main[self._main._sequence[index]] = value
 
     ### following methods pinched from UserList and adapted ###
-    def __repr__(self): return repr(self._main.values())
+    def __repr__(self):
+        return repr(self._main.values())
 
     # FIXME: do we need to check if we are comparing with another ``_values``
     #   object ? (like the __cast method of UserList)
-    def __lt__(self, other): return self._main.values() <  other
-    def __le__(self, other): return self._main.values() <= other
-    def __eq__(self, other): return self._main.values() == other
-    def __ne__(self, other): return self._main.values() != other
-    def __gt__(self, other): return self._main.values() >  other
-    def __ge__(self, other): return self._main.values() >= other
-    def __cmp__(self, other): return cmp(self._main.values(), other)
+    def __lt__(self, other):
+        return self._main.values() < other
 
-    def __contains__(self, item): return item in self._main.values()
-    def __len__(self): return len(self._main._sequence) # easier :-)
-    def __iter__(self): return self._main.itervalues()
-    def count(self, item): return self._main.values().count(item)
-    def index(self, item, *args): return self._main.values().index(item, *args)
+    def __le__(self, other):
+        return self._main.values() <= other
+
+    def __eq__(self, other):
+        return self._main.values() == other
+
+    def __ne__(self, other):
+        return self._main.values() != other
+
+    def __gt__(self, other):
+        return self._main.values() > other
+
+    def __ge__(self, other):
+        return self._main.values() >= other
+
+    def __cmp__(self, other):
+        return cmp(self._main.values(), other)
+
+    def __contains__(self, item):
+        return item in self._main.values()
+
+    def __len__(self):
+        return len(self._main._sequence)  # easier :-)
+
+    def __iter__(self):
+        return self._main.itervalues()
+
+    def count(self, item):
+        return self._main.values().count(item)
+
+    def index(self, item, *args):
+        return self._main.values().index(item, *args)
 
     def reverse(self):
         """Reverse the values"""
@@ -1142,20 +1276,41 @@ class _values(object):
         vals.sort(*args, **kwds)
         self[:] = vals
 
-    def __mul__(self, n): return self._main.values()*n
+    def __mul__(self, n):
+        return self._main.values() * n
+
     __rmul__ = __mul__
-    def __add__(self, other): return self._main.values() + other
-    def __radd__(self, other): return other + self._main.values()
+
+    def __add__(self, other):
+        return self._main.values() + other
+
+    def __radd__(self, other):
+        return other + self._main.values()
 
     ## following methods not implemented for values ##
-    def __delitem__(self, i): raise TypeError('Can\'t delete items from values')
-    def __iadd__(self, other): raise TypeError('Can\'t add in place to values')
-    def __imul__(self, n): raise TypeError('Can\'t multiply values in place')
-    def append(self, item): raise TypeError('Can\'t append items to values')
-    def insert(self, i, item): raise TypeError('Can\'t insert items into values')
-    def pop(self, i=-1): raise TypeError('Can\'t pop items from values')
-    def remove(self, item): raise TypeError('Can\'t remove items from values')
-    def extend(self, other): raise TypeError('Can\'t extend values')
+    def __delitem__(self, i):
+        raise TypeError("Can't delete items from values")
+
+    def __iadd__(self, other):
+        raise TypeError("Can't add in place to values")
+
+    def __imul__(self, n):
+        raise TypeError("Can't multiply values in place")
+
+    def append(self, item):
+        raise TypeError("Can't append items to values")
+
+    def insert(self, i, item):
+        raise TypeError("Can't insert items into values")
+
+    def pop(self, i=-1):
+        raise TypeError("Can't pop items from values")
+
+    def remove(self, item):
+        raise TypeError("Can't remove items from values")
+
+    def extend(self, other):
+        raise TypeError("Can't extend values")
 
 
 class SequenceOrderedDict(OrderedDict):
@@ -1360,14 +1515,15 @@ class SequenceOrderedDict(OrderedDict):
         self.keys = _keys(self)
         self.values = _values(self)
         self.items = _items(self)
-        self._att_dict = {'keys': self.setkeys,
-            'items': self.setitems,
-            'values': self.setvalues
-            }
+        self._att_dict = {
+            "keys": self.setkeys,
+            "items": self.setitems,
+            "values": self.setvalues,
+        }
 
     def __setattr__(self, name, value):
         """Protect keys, items, and values."""
-        if not '_att_dict' in self.__dict__:
+        if not "_att_dict" in self.__dict__:
             object.__setattr__(self, name, value)
         else:
             try:
@@ -1377,14 +1533,14 @@ class SequenceOrderedDict(OrderedDict):
             else:
                 fun(value)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # run the code tests in doctest format
     import doctest
-    m = sys.modules.get('__main__')
+
+    m = sys.modules.get("__main__")
     globs = m.__dict__.copy()
-    globs.update({
-        'INTP_VER': INTP_VER,
-    })
+    globs.update({"INTP_VER": INTP_VER})
     doctest.testmod(m, globs=globs)
 
 """

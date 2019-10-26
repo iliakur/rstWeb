@@ -27,13 +27,8 @@ try:
 except ImportError:
     from urllib.request import url2pathname, pathname2url
 
-__all__ = [
-    'nativejoin',
-    'pathjoin',
-    'relpathto',
-    'tslash',
-    'relpath'
-    ]
+__all__ = ["nativejoin", "pathjoin", "relpathto", "tslash", "relpath"]
+
 
 def pathjoin(base, *paths):
     """
@@ -43,12 +38,13 @@ def pathjoin(base, *paths):
         (so we get rid of it)
     """
     # XXXX will posixpath.join do all this anyway?
-    if base and not base.endswith('/'):
+    if base and not base.endswith("/"):
         # get rid of the filename
-        base = '/'.join(base.split('/')[:-1])
+        base = "/".join(base.split("/")[:-1])
     base = tslash(base)
     path = (base,) + paths
     return posixpath.normpath(posixpath.join(*path))
+
 
 def nativejoin(base, path):
     """
@@ -58,6 +54,7 @@ def nativejoin(base, path):
     return a file path in a (relatively) OS native way.
     """
     return url2pathname(pathjoin(base, path))
+
 
 def relpathto(thisdir, origin, dest):
     """
@@ -76,20 +73,20 @@ def relpathto(thisdir, origin, dest):
         (this makes the top level of thisdir our root directory)
     """
     orig_thisdir = thisdir
-    if not thisdir.startswith('/'):
-        thisdir = '/' + thisdir
+    if not thisdir.startswith("/"):
+        thisdir = "/" + thisdir
     orig_abs = posixpath.normpath(posixpath.join(thisdir, origin))
     dest_abs = posixpath.normpath(posixpath.join(thisdir, dest))
-    if origin.endswith('/') and not orig_abs.endswith('/'):
-        orig_abs = orig_abs + '/'
-    if dest.endswith('/') and not dest_abs.endswith('/'):
-        dest_abs = dest_abs + '/'
-#    print(orig_abs, dest_abs)
+    if origin.endswith("/") and not orig_abs.endswith("/"):
+        orig_abs = orig_abs + "/"
+    if dest.endswith("/") and not dest_abs.endswith("/"):
+        dest_abs = dest_abs + "/"
+    #    print(orig_abs, dest_abs)
     #
     # if the first item is a filename, we want to get rid of it
-    orig_list = orig_abs.split('/')[:-1]
-    dest_list = dest_abs.split('/')
-#    print(orig_list, dest_list)
+    orig_list = orig_abs.split("/")[:-1]
+    dest_list = dest_abs.split("/")
+    #    print(orig_list, dest_list)
 
     if orig_list[0] != dest_list[0]:
         # can't get here from there
@@ -106,18 +103,19 @@ def relpathto(thisdir, origin, dest):
     # now i is the point where the two paths diverge;
     # need a certain number of "os.pardir"s to work up
     # from the origin to the point of divergence.
-    segments = ['..'] * (len(orig_list) - i)
+    segments = [".."] * (len(orig_list) - i)
     # need to add the diverging part of dest_list.
     segments += dest_list[i:]
     if len(segments) == 0:
         # if they happen to be identical paths
         # identical directories
-        if dest.endswith('/'):
-            return ''
+        if dest.endswith("/"):
+            return ""
         # just the filename - the last part of dest
         return dest_list[-1]
     else:
-        return '/'.join(segments)
+        return "/".join(segments)
+
 
 def relpath(origin, dest):
     """Given two absolute paths, work out a path from origin to destination.
@@ -135,14 +133,14 @@ def relpath(origin, dest):
     We are *assuming* relative paths on the same device
         (i.e. same top level directory)
     """
-    if not origin.startswith('/'):
-        origin = '/' + origin
-    if not dest.startswith('/'):
-        dest = '/' + dest
+    if not origin.startswith("/"):
+        origin = "/" + origin
+    if not dest.startswith("/"):
+        dest = "/" + dest
     #
     # if the first item is a filename, we want to get rid of it
-    orig_list = origin.split('/')[:-1]
-    dest_list = dest.split('/')
+    orig_list = origin.split("/")[:-1]
+    dest_list = dest.split("/")
     #
     # find the location where the two paths start to differ.
     i = 0
@@ -154,18 +152,19 @@ def relpath(origin, dest):
     # now i is the point where the two paths diverge.
     # need a certain number of "os.pardir"s to work up
     # from the origin to the point of divergence.
-    segments = ['..'] * (len(orig_list) - i)
+    segments = [".."] * (len(orig_list) - i)
     # need to add the diverging part of dest_list.
     segments += dest_list[i:]
     if len(segments) == 0:
         # if they happen to be identical paths
         # identical directories
-        if dest.endswith('/'):
-            return ''
+        if dest.endswith("/"):
+            return ""
         # just the filename - the last part of dest
         return dest_list[-1]
     else:
-        return '/'.join(segments)
+        return "/".join(segments)
+
 
 def tslash(apath):
     """Add a trailing slash to a path if it needs one.
@@ -173,68 +172,66 @@ def tslash(apath):
     Doesn't use os.sep because you end up jiggered on windoze - when you
     want separators for URLs.
     """
-    if (apath and
-            apath != '.' and
-            not apath.endswith('/') and
-            not apath.endswith('\\')):
-        return apath + '/'
+    if apath and apath != "." and not apath.endswith("/") and not apath.endswith("\\"):
+        return apath + "/"
     else:
         return apath
 
+
 ##############################################
+
 
 def testJoin():
     thelist = [
-        ('/', 'fish.html'),
-        ('/dir/dir/', '../file'),
-        ('dir/dir/', '../file'),
-        ('dir/dir/', '../../file'),
-        ('dir/dir/', '../../../file'),
-        ('/dir/dir/', '../notherdir/file'),
-        ('/dir/dir/', '../../notherdir/file'),
-        ('dir/dir/', '../../notherdir/file'),
-        ('dir/dir/', '../../../notherdir/file'),
-        ('', '../path'),
+        ("/", "fish.html"),
+        ("/dir/dir/", "../file"),
+        ("dir/dir/", "../file"),
+        ("dir/dir/", "../../file"),
+        ("dir/dir/", "../../../file"),
+        ("/dir/dir/", "../notherdir/file"),
+        ("/dir/dir/", "../../notherdir/file"),
+        ("dir/dir/", "../../notherdir/file"),
+        ("dir/dir/", "../../../notherdir/file"),
+        ("", "../path"),
     ]
     for entry in thelist:
-        print(entry + '      ::        ' + pathjoin(*entry))
-        print(entry + '      ::        ' + nativejoin(*entry))
-        print('\n')
+        print(entry + "      ::        " + pathjoin(*entry))
+        print(entry + "      ::        " + nativejoin(*entry))
+        print("\n")
+
 
 def testRelpathto():
-    thedir = '//toplevel/dirone/dirtwo/dirthree'
+    thedir = "//toplevel/dirone/dirtwo/dirthree"
     thelist = [
-        ('file1.html', 'file2.html'),
-        ('file1.html', '../file2.html'),
-        ('../file1.html', '../file2.html'),
-        ('../file1.html', 'file2.html'),
-        ('../fish1/fish2/', '../../sub1/sub2/'),
-        ('../fish1/fish2/', 'sub1/sub2'),
-        ('../../../fish1/fish2/', 'sub1/sub2/'),
-        ('../../../fish1/fish2/', 'sub1/sub2/file1.html'),
-   ]
+        ("file1.html", "file2.html"),
+        ("file1.html", "../file2.html"),
+        ("../file1.html", "../file2.html"),
+        ("../file1.html", "file2.html"),
+        ("../fish1/fish2/", "../../sub1/sub2/"),
+        ("../fish1/fish2/", "sub1/sub2"),
+        ("../../../fish1/fish2/", "sub1/sub2/"),
+        ("../../../fish1/fish2/", "sub1/sub2/file1.html"),
+    ]
     for orig, dest in thelist:
-        print('(%s, %s)      : ' % (orig, dest) + relpathto(thedir, orig, dest))
+        print("(%s, %s)      : " % (orig, dest) + relpathto(thedir, orig, dest))
+
 
 def testRelpathto2():
-    thedir = 'section3/'
-    thelist = [
-        ('../archive/strangeindex1.html', 'article2.html'),
-    ]
+    thedir = "section3/"
+    thelist = [("../archive/strangeindex1.html", "article2.html")]
     for orig, dest in thelist:
         answer = relpathto(thedir, orig, dest)
-        print('(%s, %s)      : ' % (orig, dest) + answer)
+        print("(%s, %s)      : " % (orig, dest) + answer)
+
 
 def testRelpath():
-    thelist = [
-        ('/hello/fish/', 'bungles'),
-    ]
+    thelist = [("/hello/fish/", "bungles")]
     for orig, dest in thelist:
         answer = relpath(orig, dest)
-        print('(%s, %s)      : ' % (orig, dest) + answer)
+        print("(%s, %s)      : " % (orig, dest) + answer)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     testJoin()
     testRelpathto()
     testRelpath()
@@ -268,4 +265,3 @@ relpathto could call relpath (and so be shorter)
 nativejoin could accept multiple paths
 Could tslash be more elegant ?
 """
-

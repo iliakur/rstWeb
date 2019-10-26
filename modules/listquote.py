@@ -28,65 +28,78 @@ delimited lines) and quoting/unquoting elements of lists.
 The test stuff provides useful examples of how the functions work.
 """
 import sys
+
 if sys.version_info[0] < 3:
-	# Pre-2.3 workaround for basestring.
-	try:
-		basestring
-	except NameError:
-		basestring = (str, unicode)
+    # Pre-2.3 workaround for basestring.
+    try:
+        basestring
+    except NameError:
+        basestring = (str, unicode)
 else:
-		basestring = str
+    basestring = str
 
 import re
-inquotes = re.compile(r'''\s*(".*?"|'.*?')(.*)''')
-badchars = re.compile(r'''^[^'," \[\]\(\)#]+$''')
+
+inquotes = re.compile(r"""\s*(".*?"|'.*?')(.*)""")
+badchars = re.compile(r"""^[^'," \[\]\(\)#]+$""")
 ##commented_line = re.compile(r'''\s*([^#]*)\s*(#.*)''')
-paramfinder = re.compile(r'''(?:'.*?')|(?:".*?")|(?:[^'",\s][^,]*)''')
-unquoted = re.compile(r'''
+paramfinder = re.compile(r"""(?:'.*?')|(?:".*?")|(?:[^'",\s][^,]*)""")
+unquoted = re.compile(
+    r"""
     ([^\#,"'\(\)\[\]][^\#,\]\)]*)  # value
     \s*                         # whitespace - XXX not caught
     ([\#,\)\]].*)?                  # rest of the line
-    $''', re.VERBOSE)
+    $""",
+    re.VERBOSE,
+)
 
 __all__ = [
-    'elem_quote',
-    'unquote',
-    'ListQuoteError',
-    'QuoteError',
-    'UnQuoteError',
-    'BadLineError',
-    'CommentError',
-    'quote_escape',
-    'quote_unescape',
-    'simplelist',
-    'LineParser',
-    'lineparse',
-    'csvread',
-    'csvwrite',
-    'list_stringify',
-    'makelist'
-    ]
+    "elem_quote",
+    "unquote",
+    "ListQuoteError",
+    "QuoteError",
+    "UnQuoteError",
+    "BadLineError",
+    "CommentError",
+    "quote_escape",
+    "quote_unescape",
+    "simplelist",
+    "LineParser",
+    "lineparse",
+    "csvread",
+    "csvwrite",
+    "list_stringify",
+    "makelist",
+]
+
 
 class ListQuoteError(SyntaxError):
     """Base class for errors raised by the listquote module."""
 
+
 class QuoteError(ListQuoteError):
     """This value can't be quoted."""
+
 
 class UnQuoteError(ListQuoteError):
     """The value is badly quoted."""
 
+
 class BadLineError(ListQuoteError):
     """A line is badly built."""
+
 
 class CommentError(BadLineError):
     """A line contains a disallowed comment."""
 
+
 class CSVError(ListQuoteError):
     """The CSV File contained errors."""
 
+
 #################################################################
 # functions for quoting and unquoting
+
 
 def elem_quote(member, nonquote=True, stringify=False, encoding=None):
     """
@@ -138,12 +151,12 @@ def elem_quote(member, nonquote=True, stringify=False, encoding=None):
     if encoding and isinstance(member, str):
         # from string to unicode
         member = unicode(member, encoding)
-    if '\n' in member:
+    if "\n" in member:
         raise QuoteError('Multiline values can\'t be quoted.\n"%s"' % str(member))
     #
     if nonquote and badchars.match(member) is not None:
         return member
-    # this ordering of tests determines which quote character will be used in 
+    # this ordering of tests determines which quote character will be used in
     # preference - here we have \" first...
     elif member.find('"') == -1:
         return '"%s"' % member
@@ -153,7 +166,8 @@ def elem_quote(member, nonquote=True, stringify=False, encoding=None):
     else:
         raise QuoteError('Value can\'t be quoted : "%s"' % member)
 
-def unquote(inline, fullquote=True, retain=False): 
+
+def unquote(inline, fullquote=True, retain=False):
     """
     Unquote a value.
     
@@ -189,11 +203,11 @@ def unquote(inline, fullquote=True, retain=False):
     """
     mat = inquotes.match(inline)
     if mat is None:
-        if inline.strip()[0] not in '\'\"': # not quoted
+        if inline.strip()[0] not in "'\"":  # not quoted
             return inline
         else:
             # badly quoted
-            raise UnQuoteError('Value is badly quoted: "%s"' % inline) 
+            raise UnQuoteError('Value is badly quoted: "%s"' % inline)
     quoted, rest = mat.groups()
     if fullquote and rest.strip():
         # badly quoted
@@ -205,7 +219,8 @@ def unquote(inline, fullquote=True, retain=False):
     else:
         return quoted
 
-def quote_escape(value, lf='&mjf-lf;', quot='&mjf-quot;'):
+
+def quote_escape(value, lf="&mjf-lf;", quot="&mjf-quot;"):
     """
     Escape a string so that it can safely be quoted. You should use this if the 
     value to be quoted *may* contain line-feeds or both single quotes and double 
@@ -228,13 +243,14 @@ def quote_escape(value, lf='&mjf-lf;', quot='&mjf-quot;'):
     >>> quote_escape('hello"\\'\\n', '&fish;', '&wobble;')
     "hello&wobble;'&fish;"
     """
-    if '\n' in value:
-        value = value.replace('\n', lf)
-    if '\'' in value and '\"' in value:
+    if "\n" in value:
+        value = value.replace("\n", lf)
+    if "'" in value and '"' in value:
         value = value.replace('"', quot)
     return value
 
-def quote_unescape(value, lf='&mjf-lf;', quot='&mjf-quot;'):
+
+def quote_unescape(value, lf="&mjf-lf;", quot="&mjf-quot;"):
     """
     Unescape a string escaped by ``quote_escape``.
     
@@ -256,7 +272,8 @@ def quote_unescape(value, lf='&mjf-lf;', quot='&mjf-quot;'):
     >>> quote_unescape("hello&wobble;'&fish;",  '&fish;', '&wobble;')
     'hello"\\'\\n'
     """
-    return value.replace(lf, '\n').replace(quot, '"')
+    return value.replace(lf, "\n").replace(quot, '"')
+
 
 def simplelist(inline):
     """
@@ -276,59 +293,54 @@ def simplelist(inline):
     """
     return paramfinder.findall(inline)
 
+
 ##############################################
 # LineParser - a multi purpose line parser
 # handles lines with comma seperated values on it, followed by a comment
 # correctly handles quoting
 # *and* can handle nested lists - marked between '[...]' or '(...)'
-# See the docstring for how this works 
+# See the docstring for how this works
 # by default it returns a (list, comment) tuple !
 # There are several keyword arguments that control how LineParser works.
 
+
 class LineParser(object):
     """An object to parse nested lists from strings."""
-    
-    liststart = { '[' : ']', '(' : ')' }
-    quotes = ['\'', '"']
-    
+
+    liststart = {"[": "]", "(": ")"}
+    quotes = ["'", '"']
+
     def __init__(self, options=None, **keywargs):
         """Initialise the LineParser."""
         self.reset(options, **keywargs)
-    
+
     def reset(self, options=None, **keywargs):
         """Reset the parser with the specified options."""
         if options is None:
             options = {}
         options.update(keywargs)
         #
-        defaults = { 
-                    'recursive': True,
-                    'comment': True,
-                    'retain': False,
-                    'force_list': False,
-                    'csv': False
-                    }
+        defaults = {
+            "recursive": True,
+            "comment": True,
+            "retain": False,
+            "force_list": False,
+            "csv": False,
+        }
         defaults.update(options)
-        if defaults['csv']:
-            defaults.update({
-                        'recursive': False, 
-                        'force_list': True, 
-                        'comment': False,
-                        })
+        if defaults["csv"]:
+            defaults.update({"recursive": False, "force_list": True, "comment": False})
         # check all the options are valid
         for entry in defaults.keys():
-            if entry not in ['comment',
-                            'retain',
-                            'csv',
-                            'recursive',
-                            'force_list']:
-                raise TypeError("'%s' is an invalid keyword argument for "
-                                    "this function" % entry)
+            if entry not in ["comment", "retain", "csv", "recursive", "force_list"]:
+                raise TypeError(
+                    "'%s' is an invalid keyword argument for " "this function" % entry
+                )
         #
-        self.recursive = defaults['recursive']
-        self.comment = defaults['comment']
-        self.retain = defaults['retain']
-        self.force_list = defaults['force_list']
+        self.recursive = defaults["recursive"]
+        self.comment = defaults["comment"]
+        self.retain = defaults["retain"]
+        self.force_list = defaults["force_list"]
 
     def feed(self, inline, endchar=None):
         """
@@ -391,7 +403,7 @@ class LineParser(object):
             # NOTE: this sort of operation would be quicker
             # with lists - but then can't use regexes
             thischar = inline[0]
-            if thischar == '#':
+            if thischar == "#":
                 # reached a comment
                 # end of the line...
                 break
@@ -400,12 +412,12 @@ class LineParser(object):
                 return outlist, inline[1:]
             #
             if comma_needed:
-                if thischar == ',':
+                if thischar == ",":
                     inline = inline[1:].lstrip()
                     comma_needed = False
                     found_comma = True
                     continue
-                raise BadLineError('Line is badly built :\n%s' % self.origline)
+                raise BadLineError("Line is badly built :\n%s" % self.origline)
             #
             try:
                 # the character that marks the end of the list
@@ -414,7 +426,7 @@ class LineParser(object):
                 pass
             else:
                 if not self.recursive and endchar is not None:
-                    raise BadLineError('Line is badly built :\n%s' % self.origline)
+                    raise BadLineError("Line is badly built :\n%s" % self.origline)
                 newlist, inline = self.feed(inline[1:], endchar=listend)
                 outlist.append(newlist)
                 inline = inline.lstrip()
@@ -424,8 +436,7 @@ class LineParser(object):
             if thischar in self.quotes:
                 # this might raise an error
                 # FIXME: trap the error and raise a more appropriate one ?
-                element, inline = unquote(inline, fullquote=False, 
-                                                    retain=self.retain)
+                element, inline = unquote(inline, fullquote=False, retain=self.retain)
                 inline = inline.lstrip()
                 outlist.append(element)
                 comma_needed = True
@@ -437,17 +448,17 @@ class LineParser(object):
                 # FIXME: if the regex was better we wouldn't need an rstrip
                 element = mat.group(1).rstrip()
                 # group 2 will be ``None`` if we reach the end of the line
-                inline = mat.group(2) or ''
+                inline = mat.group(2) or ""
                 outlist.append(element)
                 comma_needed = True
                 continue
             # or it's a badly built line
-            raise BadLineError('Line is badly built :\n%s' % self.origline)
+            raise BadLineError("Line is badly built :\n%s" % self.origline)
         #
         # if we've been called recursively
         # we shouldn't have got this far
         if endchar is not None:
-            raise BadLineError('Line is badly built :\n%s' % self.origline)
+            raise BadLineError("Line is badly built :\n%s" % self.origline)
         #
         if not found_comma:
             # if we didn't find a comma
@@ -455,7 +466,7 @@ class LineParser(object):
             if outlist:
                 outlist = outlist[0]
             else:
-                outlist = ''
+                outlist = ""
         if self.force_list and not isinstance(outlist, list):
             if outlist:
                 outlist = [outlist]
@@ -463,9 +474,10 @@ class LineParser(object):
                 outlist = []
         if not self.comment:
             if inline:
-                raise CommentError('Comment not allowed :\n%s' % self.origline)
+                raise CommentError("Comment not allowed :\n%s" % self.origline)
             return outlist
         return outlist, inline
+
 
 def lineparse(inline, options=None, **keywargs):
     """
@@ -542,8 +554,10 @@ def lineparse(inline, options=None, **keywargs):
     p = LineParser(options, **keywargs)
     return p.feed(inline)
 
+
 ############################################################################
 # a couple of functions to help build lists
+
 
 def list_stringify(inlist):
     """
@@ -587,7 +601,7 @@ def list_stringify(inlist):
     return outlist
 
 
-def makelist(inlist, listchar='', stringify=False, escape=False, encoding=None):
+def makelist(inlist, listchar="", stringify=False, escape=False, encoding=None):
     """
     Given a list - turn it into a string that represents that list. (Suitable
     for parsing by ``LineParser``).
@@ -627,11 +641,11 @@ def makelist(inlist, listchar='', stringify=False, escape=False, encoding=None):
     """
     if stringify:
         inlist = list_stringify(inlist)
-    listdict = {'[' : '[%s]', '(' : '(%s)', '' : '%s'}
+    listdict = {"[": "[%s]", "(": "(%s)", "": "%s"}
     outline = []
     # this makes '[' the default for empty or single value lists
     if len(inlist) < 2:
-        listchar = listchar or '['
+        listchar = listchar or "["
     for item in inlist:
         if not isinstance(item, (list, tuple)):
             if escape:
@@ -639,13 +653,14 @@ def makelist(inlist, listchar='', stringify=False, escape=False, encoding=None):
             outline.append(elem_quote(item, encoding=encoding))
         else:
             # recursive for nested lists
-            outline.append(makelist(item, listchar or '[', 
-                                        stringify, escape, encoding))
-    return listdict[listchar] % (', '.join(outline))
+            outline.append(makelist(item, listchar or "[", stringify, escape, encoding))
+    return listdict[listchar] % (", ".join(outline))
+
 
 ############################################################################
 # CSV functions
 # csvread, csvwrite
+
 
 def csvread(infile):
     """
@@ -714,6 +729,7 @@ def csvread(infile):
         raise e
     return out_csv
 
+
 def csvwrite(inlist, stringify=False):
     """
     Given a list of lists it turns each entry into a line in a CSV.
@@ -762,15 +778,19 @@ def csvwrite(inlist, stringify=False):
                     val = str(val)
                 new_entry.append(val)
             entry = new_entry
-        this_line = ', '.join([elem_quote(val) for val in entry])
+        this_line = ", ".join([elem_quote(val) for val in entry])
         out_list.append(this_line)
     return out_list
 
+
 ############################################################################
+
 
 def _test():
     import doctest
+
     doctest.testmod()
+
 
 if __name__ == "__main__":
     _test()

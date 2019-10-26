@@ -19,30 +19,32 @@
 **setup.py** for ``configobj`` and ``validate`` modules.
 """
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
     from distutils.core import setup
     from configobj import __version__ as VERSION
 
-    NAME = 'configobj'
-    MODULES = 'configobj', 'validate'
-    DESCRIPTION = 'Config file reading, writing, and validation.'
-    URL = 'http://www.voidspace.org.uk/python/configobj.html'
-    LICENSE = 'BSD'
+    NAME = "configobj"
+    MODULES = "configobj", "validate"
+    DESCRIPTION = "Config file reading, writing, and validation."
+    URL = "http://www.voidspace.org.uk/python/configobj.html"
+    LICENSE = "BSD"
     PLATFORMS = ["Platform Independent"]
 
-    if sys.version < '2.2.3':
+    if sys.version < "2.2.3":
         from distutils.dist import DistributionMetadata
+
         DistributionMetadata.classifiers = None
         DistributionMetadata.download_url = None
 
-    setup(name= NAME,
-          version= VERSION,
-          description= DESCRIPTION,
-          license = LICENSE,
-          platforms = PLATFORMS,
-          author= 'Michael Foord & Nicola Larosa',
-          author_email= 'fuzzyman@voidspace.org.uk',
-          url= URL,
-          py_modules = MODULES,
-         )
+    setup(
+        name=NAME,
+        version=VERSION,
+        description=DESCRIPTION,
+        license=LICENSE,
+        platforms=PLATFORMS,
+        author="Michael Foord & Nicola Larosa",
+        author_email="fuzzyman@voidspace.org.uk",
+        url=URL,
+        py_modules=MODULES,
+    )

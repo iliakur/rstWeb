@@ -21,10 +21,11 @@ from modules.cgiutils import *
 
 actionline = '<input type="hidden" name="action" value="%s" />'
 # a list of reserved names for users
-RESERVEDNAMES = ['config', 'default', 'temp', 'emails', 'pending']
+RESERVEDNAMES = ["config", "default", "temp", "emails", "pending"]
 
 # Helper functions for the login scripts and tools
-  
+
+
 def makecookie(userconfig, password, cookiepath):
     """
     Return the current valid cookie heaader for the values supplied in the
@@ -32,46 +33,56 @@ def makecookie(userconfig, password, cookiepath):
     """
     from login import encodestring
     from Cookie import SimpleCookie
+
     thecookie = SimpleCookie()
-    cookiestring = encodestring(userconfig['username'],password)
-    maxage = userconfig['max-age']
-    thecookie['userid'] = cookiestring
-    if maxage and int(maxage):            # possible cause of error here if the maxage value in a users file isn't an integer !!
-        thecookie['userid']['max-age'] = int(maxage) 
+    cookiestring = encodestring(userconfig["username"], password)
+    maxage = userconfig["max-age"]
+    thecookie["userid"] = cookiestring
+    if maxage and int(
+        maxage
+    ):  # possible cause of error here if the maxage value in a users file isn't an integer !!
+        thecookie["userid"]["max-age"] = int(maxage)
     if cookiepath:
-        thecookie['userid']['path'] = cookiepath
-    return thecookie.output()                         # XXXX may need to be able to return the cookie object
+        thecookie["userid"]["path"] = cookiepath
+    return thecookie.output()  # XXXX may need to be able to return the cookie object
+
 
 def emptycookie(cookiepath=None):
     """Return an empty cookie with max-age 0.
      Used for logout features.
      """
     from Cookie import SimpleCookie
+
     thecookie = SimpleCookie()
-    thecookie['userid'] = ''
-    thecookie['userid']['max-age'] = 0 
+    thecookie["userid"] = ""
+    thecookie["userid"]["max-age"] = 0
     if cookiepath:
-        thecookie['userid']['path'] = cookiepath 
-    return thecookie.output()                       # XXXX may need to be able to return the cookie object
+        thecookie["userid"]["path"] = cookiepath
+    return thecookie.output()  # XXXX may need to be able to return the cookie object
+
 
 def sortaction(action):
-    return action or 'EMPTY_VAL_MJF'
+    return action or "EMPTY_VAL_MJF"
+
 
 def createuser(userdir, realname, username, email, password, adminlev):
     """Create a new user."""
     from time import time
     from modules.dataenc import pass_enc
     from modules.configobj import ConfigObj
-    
-    user = ConfigObj(userdir+'default.ini')
-    user.filename = userdir + username + '.ini'         # XXXX  this does no checkign htat the name is valid and doesn't already exist !!
-    user['username'] = username
-    user['realname'] = realname
-    user['email'] = email
-    user['admin'] = adminlev
-    user['password'] = pass_enc(password, timestamp=True, daynumber=True)
-    user['created'] = str(time())
+
+    user = ConfigObj(userdir + "default.ini")
+    user.filename = (
+        userdir + username + ".ini"
+    )  # XXXX  this does no checkign htat the name is valid and doesn't already exist !!
+    user["username"] = username
+    user["realname"] = realname
+    user["email"] = email
+    user["admin"] = adminlev
+    user["password"] = pass_enc(password, timestamp=True, daynumber=True)
+    user["created"] = str(time())
     user.write()
+
 
 """
 CHANGELOG

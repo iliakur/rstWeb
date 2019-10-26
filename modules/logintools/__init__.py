@@ -15,16 +15,9 @@ from .login import *
 from .loginutils import *
 from .newlogin import *
 
-__all__ = (
-    'login',
-    'isloggedin',
-    'logout',
-    'createuser',
-    'checklogin',
-    'displaylogin'
-    )
+__all__ = ("login", "isloggedin", "logout", "createuser", "checklogin", "displaylogin")
 
-__version__ = '0.6.2'
+__version__ = "0.6.2"
 
 """
 CHANGELOG
