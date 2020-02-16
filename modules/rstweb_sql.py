@@ -853,9 +853,11 @@ def export_document(doc, project, exportdir):
     for user in doc_users:
         this_user = user[0]
         rst_out = get_export_string(doc, project, this_user)
-        filename = project + "_" + doc + "_" + this_user + ".rs3"
-        f = codecs.open(exportdir + filename, "w", "utf-8")
-        f.write(rst_out)
+        export_path = os.path.join(exportdir, project)
+        if not os.path.exists(export_path):
+            os.makedirs(export_path)
+        with codecs.open(os.path.join(export_path, doc), "w", "utf-8") as f:
+            f.write(rst_out)
 
 
 def get_export_string(doc, project, user):

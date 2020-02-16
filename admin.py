@@ -396,6 +396,9 @@ def admin_main(user, admin, mode, **kwargs):
     if "file" in theform and "imp_project" in theform:
         fileitem = theform["file"]
         imp_project = theform["imp_project"]
+        proj_path = os.path.join(importdir, imp_project)
+        if not os.path.exists(proj_path):
+            os.makedirs(proj_path)
         do_tokenize = theform["do_tokenize"] == "tokenize"
         if isinstance(fileitem, list):
             message = ""
@@ -405,11 +408,12 @@ def admin_main(user, admin, mode, **kwargs):
                 ):  # Test if the file was uploaded and a project selection exists
                     #  strip leading path from file name to avoid directory traversal attacks
                     fn = os.path.basename(filelist_item.filename)
-                    open(importdir + fn, "wb").write(filelist_item.file.read())
+                    fp = os.path.join(proj_path, fn)
+                    open(fp, "wb").write(filelist_item.file.read())
                     message += 'The file "' + fn + '" was uploaded successfully<br/>'
                     if theform["import_file_type"] == "rs3":
                         fail = import_document(
-                            importdir + fn, imp_project, user, do_tokenize=do_tokenize
+                            fp, imp_project, user, do_tokenize=do_tokenize
                         )
                     elif theform["import_file_type"] == "plain":
                         if len(def_relfile) > 0:
@@ -431,11 +435,12 @@ def admin_main(user, admin, mode, **kwargs):
             ):  # Test if the file was uploaded and a project selection exists
                 #  strip leading path from file name to avoid directory traversal attacks
                 fn = os.path.basename(fileitem.filename)
-                open(importdir + fn, "wb").write(fileitem.file.read())
+                fp = os.path.join(proj_path, fn)
+                open(fp, "wb").write(fileitem.file.read())
                 message = 'The file "' + fn + '" was uploaded successfully'
                 if theform["import_file_type"] == "rs3":
                     fail = import_document(
-                        importdir + fn, imp_project, user, do_tokenize=do_tokenize
+                        fp, imp_project, user, do_tokenize=do_tokenize
                     )
                 elif theform["import_file_type"] == "plain":
                     if len(def_relfile) > 0:
